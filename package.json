@@ -1,0 +1,63 @@
+{
+	"name": "form-v-html",
+	"version": "1.0.3",
+	"description": "A flexible, powerful form validation library for Vue 3 applications",
+	"author": "Hanan Fruman",
+	"license": "MIT",
+	"keywords": [
+		"vue",
+		"form",
+		"validation",
+		"form-v-html",
+		"vue3"
+	],
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/hananfru/form-v-html"
+	},
+	"homepage": "https://github.com/hananfru/form-v-html#readme",
+	"bugs": {
+		"url": "https://github.com/hananfru/form-v-html/issues"
+	},
+	"type": "module",
+	"main": "dist/form-v-html.umd.js",
+	"module": "dist/form-v-html.es.js",
+	"exports": {
+		".": {
+			"import": "./dist/form-v-html.es.js",
+			"require": "./dist/form-v-html.umd.js"
+		}
+	},
+	"files": [
+		"dist",
+		"src/components"
+	],
+	"scripts": {
+		"dev": "vite",
+		"build": "vite build",
+		"preview": "vite preview",
+		"test": "vitest run",
+		"test:watch": "vitest",
+		"test:coverage": "vitest run --coverage",
+		"prepublishOnly": "npm run build && npm run test"
+	},
+	"peerDependencies": {
+		"vue": "^3.0.0"
+	},
+	"devDependencies": {
+		"@vitejs/plugin-vue": "^5.2.3",
+		"@vitest/coverage-istanbul": "^3.1.1",
+		"@vitest/coverage-v8": "^3.1.1",
+		"@vue/test-utils": "^2.4.0",
+		"happy-dom": "^12.0.0",
+		"path-browserify": "^1.0.1",
+		"vite": "^6.2.4",
+		"vite-plugin-vue-devtools": "^7.7.2",
+		"vitest": "^3.1.1",
+		"vue": "^3.5.13"
+	},
+	"dependencies": {
+		"yup": "^1.6.1",
+		"zod": "^3.24.2"
+	}
+}
