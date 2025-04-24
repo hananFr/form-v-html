@@ -14,26 +14,49 @@ export function useForm(props, emit, rootRef) {
 
   
   const wrapWithGroupAndLabel = (el) => {
+    console.log('[wrap] Checking element:', el); // Log which element is being processed
+
     // Don't handle if not an element or already wrapped
-    if (el.nodeType !== 1) return;
-    if (el.parentElement && el.parentElement.classList.contains('form-group')) return;
+    if (el.nodeType !== 1) {
+        console.log('[wrap] Not an element node, skipping.');
+        return;
+    }
+    if (el.parentElement && el.parentElement.classList.contains('form-group')) {
+        console.log('[wrap] Already wrapped in form-group, skipping.');
+        return;
+    }
 
     // Get label text from directive or attributes
-    let lblText = el._vLabel || el.getAttribute('data-label') || el.getAttribute('label');
-    if (!lblText) return; // No label text found, do nothing
+    const vLabel = el._vLabel;
+    const dataLabel = el.getAttribute('data-label');
+    const labelAttr = el.getAttribute('label');
+    console.log(`[wrap] vLabel: "${vLabel}", data-label: "${dataLabel}", label: "${labelAttr}"`);
+    
+    let lblText = vLabel || dataLabel || labelAttr;
+    if (!lblText) {
+        console.log('[wrap] No label text found, skipping wrapping.');
+        return; // No label text found, do nothing
+    }
+    console.log('[wrap] Found label text:', lblText);
 
     const name = el.name || '';
     const originalParent = el.parentNode; // Get parent BEFORE moving the element
+    console.log('[wrap] Original parent:', originalParent);
 
     // Cannot wrap if element is not currently in the DOM
-    if (!originalParent) return;
+    if (!originalParent) {
+        console.log('[wrap] No original parent found, skipping.');
+        return;
+    }
 
     // Avoid double-wrapping based on previous sibling label (basic check)
     if (el.previousElementSibling && el.previousElementSibling.tagName === 'LABEL' && 
         el.parentElement === originalParent) { 
-         // Potentially skip or warn if a label already exists directly before
+        console.log('[wrap] Previous sibling is a LABEL, skipping wrapping.');
          // return; // Uncomment to skip if label found
     }
+
+    console.log('[wrap] Proceeding to create wrapper and label...'); // Log before creation
 
     // 1. Create the wrapper div
     const wrapper = document.createElement('div');
@@ -49,15 +72,12 @@ export function useForm(props, emit, rootRef) {
     const nextSibling = el.nextSibling;
 
     // 4. Append the label and the original element to the wrapper
-    //    Appending 'el' here moves it from its original parent into the wrapper
     wrapper.appendChild(labelEl);
     wrapper.appendChild(el);
 
     // 5. Insert the wrapper into the original parent where 'el' used to be
-    //    Use insertBefore with the nextSibling reference we saved.
-    //    If nextSibling is null, insertBefore acts like appendChild.
     originalParent.insertBefore(wrapper, nextSibling);
-
+    console.log('[wrap] Wrapping complete for:', el); // Log completion
   };
 
   const handleError = (el, error) => {

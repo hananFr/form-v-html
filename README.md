@@ -23,7 +23,6 @@ FormVHtml is a Vue form validation library designed with simplicity and develope
   - [Props](#props)
   - [Events](#events)
   - [Methods](#methods)
-  - [Directives](#directives)
 - [Styling](#styling)
 - [Advanced Usage](#advanced-usage)
 - [Examples](#examples)
@@ -107,6 +106,8 @@ FormVHtml is built around these core principles:
 2. **Automatic Structure** - Generate proper form layout without extra markup
 3. **Convention over Configuration** - Reasonable defaults with options to customize
 4. **Minimal Learning Curve** - If you know HTML forms, you know FormVHtml
+
+FormVHtml automatically generates a `<label>` element based on the value provided in the `label` or `data-label` attribute of your input/select/textarea element.
 
 ## Form Structure
 
@@ -268,23 +269,6 @@ Available methods:
 |--------|---------|-------------|
 | `validate()` | `Boolean` | Validates all form fields, returns true if valid |
 | `getErrors()` | `Object` | Returns the current validation errors object |
-
-### Directives
-
-FormVHtml provides directives for manual label association:
-
-| Directive | Description |
-|-----------|-------------|
-| `v-auto-label` | Creates a label for the input element |
-| `v-label` | Alias for v-auto-label |
-
-Example:
-
-```vue
-<div class="custom-form-group">
-  <input name="username" v-auto-label="'Username'" required />
-</div>
-```
 
 ## Styling
 
