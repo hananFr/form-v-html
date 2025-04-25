@@ -16,7 +16,7 @@ const submitForm = () => {
         <form @submit.prevent="submitForm">
             <input name="fullName" :label="labelName" placeholder="Full name" required minlength="2" />
             <input name="phone" type="tel" inputmode="numeric" label="טלפון" placeholder="050-1234567"
-                data-regex="^05\d{8}$" required />
+                data-filter="phone" data-regex="^05\d{8}$" required />
             <input name="address" type="text" label="כתובת" placeholder="כתובת" required />
             <input name="city" type="text" label="עיר" placeholder="עיר" required />
             <input name="zip" type="text" label="מיקוד" placeholder="מיקוד" required />
@@ -30,17 +30,6 @@ const submitForm = () => {
             <input type="file" name="file" label="קובץ" required />
             <button type="submit">Submit</button>
         </form>
-        <input name="city" type="text" label="עיר" placeholder="עיר" required />
-        <input name="zip" type="text" label="מיקוד" placeholder="מיקוד" required />
-        <input name="country" type="text" label="מדינה" placeholder="מדינה" required />
-        <input name="birthDate" type="date" label="תאריך לידה" placeholder="תאריך לידה" required />
-        <select default-value="male" name="gender" label="מין" required>
-            <option value="male">זכר</option>
-            <option value="female">נקבה</option>
-        </select>
-        <input name="idNumber" type="text" label="מספר ת.ז." placeholder="מספר ת.ז." required />
-        <input type="file" name="file" label="קובץ" required />
-        <button type="submit">Submit</button>
     </FormVHtml>
 
 </template>

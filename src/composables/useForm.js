@@ -1,6 +1,24 @@
 import { reactive, ref, watch, onMounted, onBeforeUnmount, nextTick } from 'vue';
 import { getInputValue } from '../utils/valueExtractors';
 import { validateRules, defaultMessages } from '../utils/validationRules';
+import { filtersRules } from '../utils/filtersRules';
+
+// Helper function to get the specific filter function for an element
+const getFilterFunction = (el) => {
+    const filterRules = parseFilter(el); // Assumes parseFilter is defined below and accessible
+    if (filterRules.length > 0) {
+        const filterName = filterRules[0][1]; // Gets the name like 'digitsOnly'
+        return filtersRules[filterName] || null;
+    }
+    return null;
+};
+
+// Helper function to parse filter attribute (keep it accessible)
+const parseFilter = (el) => {
+  const out = [];
+  if (el.dataset.filter) out.push(['filter', el.dataset.filter]);
+  return out;
+};
 
 export function useForm(props, emit, rootRef) {
   const formRef = ref(null);
@@ -107,6 +125,16 @@ export function useForm(props, emit, rootRef) {
     return out;
   };
 
+  const runFilter = (el) => {
+    let filteredValue = getInputValue(el, formRef.value); // Start with current value
+    const filterFn = getFilterFunction(el);
+    if (filterFn) {
+        // Apply the filter function to the whole value
+        // This is useful for applying the filter logic consistently (e.g., after paste)
+        filteredValue = filterFn(filteredValue);
+    }
+    return filteredValue; // Return the final filtered value
+  };
   const runValidation = (el) => {
     const val = getInputValue(el, formRef.value);
     for (const [rule, param] of parseValidations(el)) {
@@ -178,18 +206,127 @@ export function useForm(props, emit, rootRef) {
   };
 
   const setupInput = (el) => {
-    wrapWithGroupAndLabel(el); // <-- new feature
+    wrapWithGroupAndLabel(el); // <-- existing feature
 
     const { name } = el;
     if (!name) return;
-    if (props.validationTiming !== 'input') {
-      addListener(el, 'blur', () => validateField(el));
+
+    const filterFn = getFilterFunction(el);
+    const isFilterableInput = ['text', 'tel', 'number', 'search', 'url', 'password', 'email'].includes(el.type) || el.tagName === 'TEXTAREA';
+
+    // --- Event Listeners --- //
+
+    // 1. Keydown Listener (for filtering keys in real-time)
+    if (filterFn && isFilterableInput) {
+        addListener(el, 'keydown', (event) => {
+            const key = event.key;
+            const isCtrlOrMeta = event.ctrlKey || event.metaKey; // Handle Ctrl/Cmd
+
+            // Allow: Backspace, Delete, Tab, Escape, Enter
+            if (['Backspace', 'Delete', 'Tab', 'Escape', 'Enter'].includes(key)) {
+                return;
+            }
+
+            // Allow: Arrow keys, Home, End
+            if (key.startsWith('Arrow') || key === 'Home' || key === 'End') {
+                 return;
+            }
+
+            // Allow: Ctrl/Cmd + A, C, V, X, Z (Select All, Copy, Paste, Cut, Undo)
+            if (isCtrlOrMeta && ['a', 'c', 'v', 'x', 'z'].includes(key.toLowerCase())) {
+                return;
+            }
+
+            // Allow: Function keys (F1-F12) - less common to block
+            if (key.startsWith('F') && !isNaN(parseInt(key.substring(1)))) {
+                return;
+            }
+            
+            // Prevent default if the key is a single character AND it gets filtered out
+            if (key.length === 1 && !isCtrlOrMeta) {
+                 const filteredChar = filterFn(key); // Test the character in isolation
+                 if (filteredChar !== key) {
+                     console.log(`[filter keydown] Preventing key: '${key}'`);
+                     event.preventDefault();
+                 }
+                 // If char is allowed, default behavior adds it, 'input' listener handles the rest
+            }
+             // If it's not a single character and not explicitly allowed, potentially block? 
+             // For now, we primarily focus on filtering single printable characters.
+        });
     }
-    const evt = el.type === 'checkbox' || el.type === 'radio' ? 'change' : 'input';
-    addListener(el, evt, () => {
-      updateModel(el);
-      if (props.validationTiming === 'input' || errors[name]) validateField(el);
+
+    // 2. Paste Listener (for filtering pasted content)
+    if (filterFn && isFilterableInput) {
+        addListener(el, 'paste', (event) => {
+            console.log('[filter paste] Intercepting paste');
+            event.preventDefault(); // Prevent default paste action
+
+            const pastedText = (event.clipboardData || window.clipboardData).getData('text');
+            if (!pastedText) return;
+
+            // Filter the text that was pasted
+            const filteredPastedText = filterFn(pastedText);
+
+            const start = el.selectionStart;
+            const end = el.selectionEnd;
+            const originalValue = el.value;
+
+            // Construct the value that *would* result from pasting the filtered text
+            const potentialValue = originalValue.slice(0, start) + filteredPastedText + originalValue.slice(end);
+            
+            // IMPORTANT: Apply the filter again to the *entire potential value*
+            // This ensures rules that depend on the whole string (like max length, specific formats) are respected.
+            const finalValue = filterFn(potentialValue); 
+
+            el.value = finalValue; // Update element value with the fully filtered result
+
+            // Set cursor position after the inserted filtered text
+            // Calculate based on the difference in length between original selection and filtered pasted text
+            const finalCursorPos = start + filteredPastedText.length;
+            el.selectionStart = el.selectionEnd = finalCursorPos;
+
+            // Trigger model update and validation MANUALLY after paste modification
+             nextTick(() => { // Use nextTick ensure DOM update before model/validation
+                 updateModel(el);
+                 if (props.validationTiming === 'input' || errors[name]) {
+                    validateField(el);
+                 }
+             });
+        });
+    }
+
+    // 3. Input Listener (for model update and potential validation - NO filtering here)
+    addListener(el, 'input', () => {
+        // This event fires naturally after allowed keydown or cut/delete operations,
+        // and we manually trigger updates after paste.
+        // We just need to ensure the model and validation state are synced.
+        updateModel(el);
+         // Validate on input if configured, or if there's an existing error
+        if (props.validationTiming === 'input' || errors[name]) {
+            // Use nextTick here as well for consistency and safety after complex interactions
+            nextTick(() => {
+                 if (errors[name] || props.validationTiming === 'input') { 
+                    validateField(el);
+                 }
+            });
+        }
     });
+
+    // 4. Blur Listener (for validation) - unchanged
+    if (props.validationTiming !== 'input') {
+        addListener(el, 'blur', () => validateField(el));
+    }
+
+    // 5. Change Listener (for checkbox/radio/select) - unchanged
+    if (['checkbox', 'radio', 'select-one', 'select-multiple'].includes(el.type)) {
+         addListener(el, 'change', () => {
+            updateModel(el);
+            if (props.validationTiming === 'input' || errors[name]) {
+                 validateField(el);
+            }
+        });
+    }
   };
 
   const init = () => {

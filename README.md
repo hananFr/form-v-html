@@ -19,6 +19,7 @@ FormVHtml is a Vue form validation library designed with simplicity and develope
 - [Validation](#validation)
 - [Error Handling](#error-handling)
 - [RTL Support](#rtl-support)
+- [Input Filtering](#input-filtering)
 - [API Reference](#api-reference)
   - [Props](#props)
   - [Events](#events)
@@ -163,6 +164,75 @@ FormVHtml relies on standard HTML5 validation attributes:
 <input name="password" type="password" label="Password" required />
 <input name="passwordConfirm" type="password" label="Confirm Password" 
        required data-match="password" />
+```
+
+## Input Filtering
+
+FormVHtml allows you to automatically filter user input in real-time for specific fields, ensuring only allowed characters are entered. This is useful for fields like phone numbers, zip codes, or any input where you want to restrict the character set.
+
+### How to Use
+
+Add the `data-filter` attribute to your input or textarea element. The value of this attribute should be the name of a filter function defined in `src/utils/filtersRules.js`.
+
+```html
+<!-- Allow only numbers -->
+<input type="text" name="zipCode" data-filter="number" label="Zip Code" />
+
+<!-- Allow only digits and hyphens (assuming a 'phone' filter exists) -->
+<input type="tel" name="phoneNumber" data-filter="phone" label="Phone Number" />
+
+<!-- Allow only characters valid in an email -->
+<input type="email" name="contactEmail" data-filter="email" label="Email Address" />
+```
+
+The filtering happens on `keydown` and `paste` events, preventing invalid characters from being entered and filtering pasted content.
+
+### Built-in Filters
+
+The following filters are available by default (defined in `src/utils/filtersRules.js`):
+
+- `number`: Allows only digits (`0-9`).
+- `phone`: Allows only digits (`0-9`). (Note: You might want to customize this in `filtersRules.js` to allow hyphens or spaces if needed).
+- `email`: Allows letters (`a-zA-Z`), numbers (`0-9`), and the characters `._%+-@`.
+
+### Adding Custom Filters
+
+You can easily add your own filters by editing the `src/utils/filtersRules.js` file.
+
+1.  Open `src/utils/filtersRules.js`.
+2.  Add a new key to the `filtersRules` object. The key is the name you will use in the `data-filter` attribute.
+3.  The value should be a function that accepts the current input value (`val` as a string) and returns the filtered string.
+
+**Example: Adding an `uppercaseOnly` filter:**
+
+```javascript
+// src/utils/filtersRules.js
+export const filtersRules = {
+  // ... existing filters ...
+  
+  number: (val) => {
+    if (typeof val !== 'string') return '';
+    return val.replace(/[^0-9]/g, '');
+  },
+  
+  email: (val) => {
+     if (typeof val !== 'string') return '';
+     return val.replace(/[^a-zA-Z0-9._%+-@]/g, '');
+  },
+
+  // New custom filter
+  uppercaseOnly: (val) => {
+    if (typeof val !== 'string') return '';
+    // Remove any characters that are NOT uppercase A-Z
+    return val.replace(/[^A-Z]/g, ''); 
+  },
+};
+```
+
+Then, use it in your HTML:
+
+```html
+<input type="text" name="productCode" data-filter="uppercaseOnly" label="Product Code (Uppercase A-Z only)" />
 ```
 
 ## Error Handling
