@@ -2,8 +2,8 @@
 
 > A lightweight, intuitive Vue form validation library with seamless RTL support
 
-[![npm version](https://img.shields.io/npm/v/form-vhtml.svg)](https://www.npmjs.com/package/form-vhtml)
-[![license](https://img.shields.io/npm/l/form-vhtml.svg)](https://github.com/yourusername/form-vhtml/blob/main/LICENSE)
+[![npm version](https://img.shields.io/npm/v/form-v-html.svg)](https://www.npmjs.com/package/form-v-html)
+[![license](https://img.shields.io/npm/l/form-v-html.svg)](https://github.com/yourusername/form-v-html/blob/main/LICENSE)
 
 FormVHtml is a Vue form validation library designed with simplicity and developer experience in mind. It provides automatic label generation, validation based on standard HTML attributes, and full RTL language support.
 
@@ -47,13 +47,13 @@ FormVHtml is a Vue form validation library designed with simplicity and develope
 
 ```bash
 # npm
-npm install form-vhtml
+npm install form-v-html
 
 # yarn
-yarn add form-vhtml
+yarn add form-v-html
 
 # pnpm
-pnpm add form-vhtml
+pnpm add form-v-html
 ```
 
 ## Quick Start
@@ -64,7 +64,7 @@ pnpm add form-vhtml
 // main.js
 import { createApp } from 'vue'
 import App from './App.vue'
-import { install as installFormVHtml } from 'form-vhtml'
+import { install as installFormVHtml } from 'form-v-html'
 
 const app = createApp(App)
 installFormVHtml(app)
@@ -76,7 +76,7 @@ app.mount('#app')
 ```vue
 <script setup>
 import { ref } from 'vue';
-import { FormVHtml } from 'form-vhtml';
+import { FormVHtml } from 'form-v-html';
 
 const form = ref({ 
   fullName: '', 
@@ -569,12 +569,12 @@ const submit = () => {
 FormVHtml includes complete TypeScript definitions:
 
 ```typescript
-import { FormVHtml } from 'form-vhtml';
+import { FormVHtml } from 'form-v-html';
 import type { 
   ErrorPlacement,
   ValidationSchema,
   ValidationError
-} from 'form-vhtml';
+} from 'form-v-html';
 
 // Use types in your component
 const errorPlacement: ErrorPlacement = 'above-input';
