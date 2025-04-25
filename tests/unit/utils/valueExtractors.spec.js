@@ -102,7 +102,7 @@ describe('valueExtractors.js', () => {
       const fileInput = document.createElement('input');
       fileInput.type = 'file';
       // Usually, you test file handling logic separately
-      expect(getInputValue(fileInput)).toBeNull(); // Or potentially expect(getInputValue(fileInput)).toBeInstanceOf(FileList);
+      expect(getInputValue(fileInput)).toBeInstanceOf(FileList);
     });
 
      it('should return empty string for empty text input', () => {
