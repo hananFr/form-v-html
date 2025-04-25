@@ -16,7 +16,7 @@ const submitForm = () => {
         <form @submit.prevent="submitForm">
             <input name="fullName" :label="labelName" placeholder="Full name" required minlength="2" />
             <input name="phone" type="tel" inputmode="numeric" label="טלפון" placeholder="050-1234567"
-                data-filter="phone" data-regex="^05\d{8}$" required />
+                data-filter="phone" data-regex="^05\d{8}?$" required />
             <input name="address" type="text" label="כתובת" placeholder="כתובת" required />
             <input name="city" type="text" label="עיר" placeholder="עיר" required />
             <input name="zip" type="text" label="מיקוד" placeholder="מיקוד" required />
