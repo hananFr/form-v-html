@@ -1,6 +1,6 @@
 {
 	"name": "form-v-html",
-	"version": "1.1.4",
+	"version": "1.1.5",
 	"description": "A flexible, powerful form validation library for Vue 3 applications",
 	"author": "Hanan Fruman",
 	"license": "MIT",
@@ -13,11 +13,11 @@
 	],
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/hananfru/form-v-html"
+		"url": "https://github.com/hananfr/form-v-html"
 	},
-	"homepage": "https://github.com/hananfru/form-v-html#readme",
+	"homepage": "https://github.com/hananfr/form-v-html#readme",
 	"bugs": {
-		"url": "https://github.com/hananfru/form-v-html/issues"
+		"url": "https://github.com/hananfr/form-v-html/issues"
 	},
 	"type": "module",
 	"main": "dist/form-v-html.umd.js",
